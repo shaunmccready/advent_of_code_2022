@@ -94,12 +94,13 @@ export function calculateSizesOfDirectories(myTree: TreeNode): void {
     myTree.setDirectorySize(totalSize)
 }
 
-export function getAllDirectoriesWithAtMostSize(myTree: TreeNode, atMostSize: number): Map<string, number> {
-    const directoriesToReturn = new Map<string, number>()
+type DirectoryWithSize = {
+    name: string
+    size: number
+}
 
-    if (myTree.getDirectorySize() <= atMostSize) {
-        directoriesToReturn.set(myTree.getCurrentDirectoryName(), myTree.getDirectorySize())
-    }
+export function getAllDirectoriesWithAtMostSize(myTree: TreeNode, atMostSize: number): DirectoryWithSize[] {
+    const directoriesToReturn: DirectoryWithSize[] = []
 
     function recurseTreeForFileSizes(myTree: TreeNode, atMostSize: number) {
         if (myTree.data.directories.size > 0) {
@@ -109,7 +110,7 @@ export function getAllDirectoriesWithAtMostSize(myTree: TreeNode, atMostSize: nu
         }
 
         if (myTree.getDirectorySize() <= atMostSize) {
-            directoriesToReturn.set(myTree.getCurrentDirectoryName(), myTree.getDirectorySize())
+            directoriesToReturn.push({ name: myTree.getCurrentDirectoryName(), size: myTree.getDirectorySize() })
         }
     }
 
@@ -118,10 +119,40 @@ export function getAllDirectoriesWithAtMostSize(myTree: TreeNode, atMostSize: nu
     return directoriesToReturn
 }
 
-export function calculateSumOfAllDirectories(directories: Map<string, number>): number {
+export function getAllDirectorySizesWithAtLeast(myTree: TreeNode, atLeastSize: number): DirectoryWithSize[] {
+    const directoriesToReturn: DirectoryWithSize[] = []
+
+    function recurseTreeForFileSizes(myTree: TreeNode, atLeastSize: number) {
+        if (myTree.data.directories.size > 0) {
+            for (let dirs of myTree.data.directories.values()) {
+                recurseTreeForFileSizes(dirs, atLeastSize)
+            }
+        }
+
+        if (myTree.getDirectorySize() >= atLeastSize) {
+            directoriesToReturn.push({ name: myTree.getCurrentDirectoryName(), size: myTree.getDirectorySize() })
+        }
+    }
+
+    recurseTreeForFileSizes(myTree, atLeastSize)
+
+    return directoriesToReturn
+}
+
+export function getSmallestDirectory(directories: DirectoryWithSize[]) {
+    let smallestDirectory: DirectoryWithSize | undefined = undefined
+
+    for (let dir of directories) {
+        if (!smallestDirectory || smallestDirectory.size > dir.size) smallestDirectory = dir
+    }
+
+    return smallestDirectory
+}
+
+export function calculateSumOfAllDirectories(directoryArray: DirectoryWithSize[]): number {
     let sum = 0
-    for (let val of directories.values()) {
-        sum = sum + val
+    for (let val of directoryArray) {
+        sum = sum + val.size
     }
 
     return sum
