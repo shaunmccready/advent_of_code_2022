@@ -3,7 +3,7 @@ import {
     createTreeGridFromLinesOfTrees,
     getAllOuterTrees,
     getAllVisibleInnerTrees,
-    getVisibilityScoreOfTrees
+    getVisibilityScoreOfTreesSortedDesc
 } from './utils'
 
 const treeLinesToParse = getArrayOfTreeLinesFromFile('realTreeLines.txt')
@@ -18,13 +18,7 @@ function part1() {
 }
 
 function part2() {
-    const visibilitiesOfTrees = getVisibilityScoreOfTrees(treesGrid)
-
-    console.log(`ALL visibilities(${visibilitiesOfTrees.length}) :, ${visibilitiesOfTrees}`)
-
-    visibilitiesOfTrees.sort((a, b) => b - a)
-
-    console.log(`*SORTED DESC* ALL visibilities(${visibilitiesOfTrees.length}) :, ${visibilitiesOfTrees}`)
+    const visibilitiesOfTrees = getVisibilityScoreOfTreesSortedDesc(treesGrid)
     console.log('Final answer:', visibilitiesOfTrees[0])
 }
 

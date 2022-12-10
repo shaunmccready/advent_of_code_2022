@@ -41,23 +41,18 @@ export function getAllOuterTrees(treeGrid: number[][]): number[] {
 }
 
 export function getAllVisibleInnerTrees(treeGrid: number[][]): number[] {
-    const treeRows = treeGrid.length
-    const treeColumns = treeGrid[0].length
-
     const visibleInnerTrees: number[] = []
-
-    let allTopTrees: number[] = []
-    let allBottomTrees: number[] = []
-    let allLeftTrees: number[] = []
-    let allRightTrees: number[] = []
 
     for (let i = 1; i < treeGrid.length - 1; i++) {
         const treeRow = treeGrid[i]
 
         for (let j = 1; j < treeRow.length - 1; j++) {
+            let allTopTrees: number[] = []
+            let allBottomTrees: number[] = []
+            let allLeftTrees: number[] = []
+            let allRightTrees: number[] = []
+
             const currVal = treeGrid[i][j]
-            // console.log('curr val', currVal)
-            // console.log('row:', i)
 
             // top = i--
             let currRow = i
@@ -67,7 +62,7 @@ export function getAllVisibleInnerTrees(treeGrid: number[][]): number[] {
                 currRow--
             }
 
-            // bottom
+            // bottom = i++
             currRow = i
             while (currRow < treeGrid.length - 1) {
                 const bottomVal = treeGrid[currRow + 1][j]
@@ -75,7 +70,7 @@ export function getAllVisibleInnerTrees(treeGrid: number[][]): number[] {
                 currRow++
             }
 
-            //left
+            //left = j--
             let currCol = j
             while (currCol > 0) {
                 const leftVal = treeGrid[i][currCol - 1]
@@ -83,7 +78,7 @@ export function getAllVisibleInnerTrees(treeGrid: number[][]): number[] {
                 currCol--
             }
 
-            //right
+            //right = j++
             currCol = j
             while (currCol < treeGrid.length - 1) {
                 const rightVal = treeGrid[i][currCol + 1]
@@ -96,6 +91,7 @@ export function getAllVisibleInnerTrees(treeGrid: number[][]): number[] {
             const blockingTreesLeft = allLeftTrees.filter((tree) => tree >= currVal)
             const blockingTreesRight = allRightTrees.filter((tree) => tree >= currVal)
 
+            // Tree considered visible if at least one side is not blocked
             if (
                 !blockingTreesTop.length ||
                 !blockingTreesBottom.length ||
@@ -104,37 +100,34 @@ export function getAllVisibleInnerTrees(treeGrid: number[][]): number[] {
             ) {
                 visibleInnerTrees.push(currVal)
             }
-
-            //reset directional tree arrays
-            allTopTrees = []
-            allBottomTrees = []
-            allLeftTrees = []
-            allRightTrees = []
         }
     }
 
     return visibleInnerTrees
 }
 
-export function getVisibilityScoreOfTrees(treeGrid: number[][]): number[] {
-    const treeRows = treeGrid.length
-    const treeColumns = treeGrid[0].length
+function getTreeVisibilityCount(valToCompare: number, treeArray: number[]): number {
+    let visCounter = 0
+    for (let num of treeArray) {
+        visCounter++
+        if (num >= valToCompare) break
+    }
+    return visCounter
+}
 
+export function getVisibilityScoreOfTreesSortedDesc(treeGrid: number[][]): number[] {
     const visibilityScores: number[] = []
-
-    let allTopTrees: number[] = []
-    let allBottomTrees: number[] = []
-    let allLeftTrees: number[] = []
-    let allRightTrees: number[] = []
 
     for (let i = 0; i < treeGrid.length; i++) {
         const treeRow = treeGrid[i]
 
         for (let j = 0; j < treeRow.length; j++) {
-            const currVal = treeGrid[i][j]
-            console.log('curr val', currVal)
-            console.log('row:', i)
+            let allTopTrees: number[] = []
+            let allBottomTrees: number[] = []
+            let allLeftTrees: number[] = []
+            let allRightTrees: number[] = []
 
+            const currVal = treeGrid[i][j]
             let currRow, currCol
 
             // top = i--
@@ -179,56 +172,29 @@ export function getVisibilityScoreOfTrees(treeGrid: number[][]): number[] {
 
             const visibilitiesFromCurrentPosition: number[] = []
 
-            let visCounter = 0
-            for (let num of allTopTrees) {
-                visCounter++
-                if (num >= currVal) break
-            }
-            if (visCounter > 0) visibilitiesFromCurrentPosition.push(visCounter)
-            console.log('Top vis counter:', visCounter)
+            let visCount = getTreeVisibilityCount(currVal, allTopTrees)
+            if (visCount > 0) visibilitiesFromCurrentPosition.push(visCount)
 
-            visCounter = 0
-            for (let num of allBottomTrees) {
-                visCounter++
-                if (num >= currVal) break
-            }
-            if (visCounter > 0) visibilitiesFromCurrentPosition.push(visCounter)
-            console.log('Bottom vis counter:', visCounter)
+            visCount = getTreeVisibilityCount(currVal, allBottomTrees)
+            if (visCount > 0) visibilitiesFromCurrentPosition.push(visCount)
 
-            visCounter = 0
-            for (let num of allLeftTrees) {
-                visCounter++
-                if (num >= currVal) break
-            }
-            if (visCounter > 0) visibilitiesFromCurrentPosition.push(visCounter)
-            console.log('Left vis counter:', visCounter)
+            visCount = getTreeVisibilityCount(currVal, allLeftTrees)
+            if (visCount > 0) visibilitiesFromCurrentPosition.push(visCount)
 
-            visCounter = 0
-            for (let num of allRightTrees) {
-                visCounter++
-                if (num >= currVal) break
-            }
-            if (visCounter > 0) visibilitiesFromCurrentPosition.push(visCounter)
-            console.log('Right vis counter:', visCounter)
+            visCount = getTreeVisibilityCount(currVal, allRightTrees)
+            if (visCount > 0) visibilitiesFromCurrentPosition.push(visCount)
 
-            console.log('All visibility scores:', visibilitiesFromCurrentPosition)
-
-            let finalVisibilityScore = 1
-            visibilitiesFromCurrentPosition.forEach((num) => (finalVisibilityScore = finalVisibilityScore * num))
-            console.log('final vis score:', finalVisibilityScore)
-            visibilityScores.push(finalVisibilityScore)
-
-            //reset directional tree arrays
-            allTopTrees = []
-            allBottomTrees = []
-            allLeftTrees = []
-            allRightTrees = []
-
-            console.log('\n')
+            visibilityScores.push(getVisibilityScore(visibilitiesFromCurrentPosition))
         }
-
-        console.log('*****')
     }
 
+    //Sort the scores descending (highest first)
+    visibilityScores.sort((a, b) => b - a)
     return visibilityScores
+}
+
+function getVisibilityScore(visibilitiesFromCurrentPosition: number[]): number {
+    let finalVisibilityScore = 1
+    visibilitiesFromCurrentPosition.forEach((num) => (finalVisibilityScore = finalVisibilityScore * num))
+    return finalVisibilityScore
 }
